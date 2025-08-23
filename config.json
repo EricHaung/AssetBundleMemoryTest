@@ -1,6 +1,5 @@
 {
-  "schema": 1,
-  "bundle_url": "",
-  "assets": [
-  ]
+  "version": 1,
+  "bundle_urls": [],
+  "assets": []
 }
