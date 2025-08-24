@@ -154,7 +154,7 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
             // 音效 / 視頻
             "AudioClip" => typeof(AudioClip),
             "AnimationClip" => typeof(AnimationClip),
-            "AnimatorController" => typeof(UnityEditor.Animations.AnimatorController), // 注意：僅 Editor 可用
+            "RuntimeAnimatorController" => typeof(RuntimeAnimatorController), 
             "VideoClip" => typeof(UnityEngine.Video.VideoClip),
 
             // UI / 字型
