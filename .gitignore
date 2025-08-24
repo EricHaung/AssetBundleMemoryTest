@@ -3,36 +3,21 @@
 # A leading slash matches the beginning of the pathname.
 
 # Would like to keep /Logs/ untracked to remove, but since 2020 Unity will keep /Logs/ contents opened and unable to remove
-/Logs/
-/Temp/
-/Library/
+**/Logs/
+**/Temp/
+**/Library/
 # Added in Unity 2020, shall be ignored according to Aras
 # https://forum.unity.com/threads/whats-the-usersettings-directory.754436/#post-5029937
-/UserSettings/
+**/UserSettings/
 
 # Unity Generated Solution files
-/*.sln
-/*.csproj
-
-# Visual Studio DB
-**/.vs/
-
-# ReSharper Personal Config
-/*.DotSettings.user
+*.sln
+*.csproj
 
 # Visual Studio Code
 .vscode/
 obj/
 [Bb]in/
-
-# Rider
-/.idea/
-/Assets/Plugins/Editor/JetBrains/
-/Assets/Plugins/Editor/JetBrains.meta
-/_ReSharper.Caches/
-
-# MonoDevelop
-/*.userprefs
 
 # Windows File Explorer Thumbnail Cache
 Thumbs.db
