@@ -1,7 +1,7 @@
 {
     "version": 20,
     "bundle_urls": [
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/root_20250824_171213.ab"
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/root.ab"
     ],
     "assets": [
         {
