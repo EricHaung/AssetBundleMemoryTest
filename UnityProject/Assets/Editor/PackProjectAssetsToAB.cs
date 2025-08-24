@@ -189,27 +189,23 @@ public static class PackProjectAssetsToAB
                 // 6) 追加本次 AB 的 assets（path + type）
                 foreach (var name in names)
                 {
-                    // 6.1 取得型別：直接從 AB 載出主物件看型別（避免 AssetDatabase 偵測失敗）
+                    // 6.1 嘗試載入物件，取得型別
                     UnityEngine.Object obj = null;
                     try { obj = ab.LoadAsset(name); } catch { /* 忽略載入失敗 */ }
                     var typeName = obj != null ? obj.GetType().Name : "Object";
 
-                    // 6.2 轉成你要的 path 格式：去掉 "assets/" 前綴與副檔名
-                    var clean = name;
-                    if (clean.StartsWith("assets/", StringComparison.OrdinalIgnoreCase))
-                        clean = clean.Substring("assets/".Length);
-                    var ext = Path.GetExtension(clean);
-                    if (!string.IsNullOrEmpty(ext)) clean = clean.Substring(0, clean.Length - ext.Length);
+                    // 6.2 保留原始 key（含 assets/ 與副檔名），這才是 LoadAssetAsync 用的
+                    var fullPath = name; // 例如 "assets/ui/goblin_sprite.png"
 
                     // 6.3 去重（null-safe）
                     bool exists = cfg.assets.Any(a =>
                         a != null &&
                         !string.IsNullOrEmpty(a.path) &&
-                        a.path.Equals(clean, StringComparison.OrdinalIgnoreCase));
+                        a.path.Equals(fullPath, StringComparison.OrdinalIgnoreCase));
 
                     if (!exists)
                     {
-                        cfg.assets.Add(new AssetEntry { path = clean, type = typeName });
+                        cfg.assets.Add(new AssetEntry { path = fullPath, type = typeName });
                     }
                 }
 

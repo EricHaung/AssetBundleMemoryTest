@@ -1,11 +1,11 @@
 {
-    "version": 2,
+    "version": 1,
     "bundle_urls": [
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/goblin_sprite_20250824_125412.ab"
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/goblin_sprite_20250824_130356.ab"
     ],
     "assets": [
         {
-            "path": "ui/goblin_sprite",
+            "path": "assets/ui/goblin_sprite.png",
             "type": "Texture2D"
         }
     ]

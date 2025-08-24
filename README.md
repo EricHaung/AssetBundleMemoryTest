@@ -34,13 +34,15 @@ Scene   // 注意：需用 SceneManager.LoadSceneAsync 載入
 ### Config格式範例
 ```json
 {
-  "version": 1,
-  "bundle_urls": [
-    "https://github.com/EricHaung/AssetBundleMemoryTest/AssetBundle/ui_v002.ab"
-  ],
-  "assets": [
-    { "path": "UI/Prefabs/MenuRoot", "type": "GameObject" },
-    { "path": "UI/Sprites/StartButton", "type": "Sprite" }
-  ]
+    "version": 1,
+    "bundle_urls": [
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/goblin_sprite_20250824_125412.ab"
+    ],
+    "assets": [
+        {
+            "path": "ui/goblin_sprite",
+            "type": "Texture2D"
+        }
+    ]
 }
 ```
