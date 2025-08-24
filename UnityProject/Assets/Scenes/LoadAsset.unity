@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97be8872d125f4142a0c1faebe6dd9c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  configUrl: https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/config.json
+  configUrl: https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/refs/heads/main/config.json
 --- !u!1 &148728188
 GameObject:
   m_ObjectHideFlags: 0
