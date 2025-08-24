@@ -1,11 +1,23 @@
 {
-    "version": 31,
+    "version": 32,
     "bundle_urls": [
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/quaternarytree5.ab"
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/quaternarytree5s.ab"
     ],
     "assets": [
         {
             "path": "assets/prefabs/QuaternaryTree5.prefab",
+            "type": "GameObject"
+        },
+        {
+            "path": "assets/prefabs/QuaternaryTree5 1.prefab",
+            "type": "GameObject"
+        },
+        {
+            "path": "assets/prefabs/QuaternaryTree5 2.prefab",
+            "type": "GameObject"
+        },
+        {
+            "path": "assets/prefabs/QuaternaryTree5 3.prefab",
             "type": "GameObject"
         }
     ]
