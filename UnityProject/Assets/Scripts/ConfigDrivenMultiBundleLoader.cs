@@ -23,11 +23,13 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
 
     private readonly List<AssetBundle> _bundles = new();
     private readonly List<Object> _loadedAssets = new();
+    
+    public Coroutine StartLoading() => StartCoroutine(Run());
 
-    private void Start()
-    {
-        StartCoroutine(Run());
-    }
+    // private void Start()
+    // {
+    //     StartCoroutine(Run());
+    // }
 
     IEnumerator Run()
     {
@@ -154,7 +156,7 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
             // 音效 / 視頻
             "AudioClip" => typeof(AudioClip),
             "AnimationClip" => typeof(AnimationClip),
-            "RuntimeAnimatorController" => typeof(RuntimeAnimatorController), 
+            "RuntimeAnimatorController" => typeof(RuntimeAnimatorController),
             "VideoClip" => typeof(UnityEngine.Video.VideoClip),
 
             // UI / 字型
