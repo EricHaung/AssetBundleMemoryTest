@@ -1,5 +1,5 @@
 {
-    "version": 28,
+    "version": 29,
     "bundle_urls": [
         "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/binarytree3.ab",
         "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/binarytree31.ab"
