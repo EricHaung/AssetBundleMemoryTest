@@ -8,24 +8,32 @@ using UnityEngine;
 
 public static class PackProjectAssetsToAB
 {
+    [System.Serializable]
+    private class GlobalConfig
+    {
+        public int version = 1;
+        public List<string> bundle_urls = new List<string>();
+        public List<string> assets = new List<string>();
+    }
+
     private const string OutputDir = "Assets/AssetBundles";
 
-    [MenuItem("Tools/AssetBundles/Pack Selected Project Assets → Single AB (LZ4)")]
-    public static void Pack_LZ4()
-    {
-        var opts = BuildAssetBundleOptions.ChunkBasedCompression;
-        PackSelectedProjectAssetsToSingleAB(opts, "LZ4");
-    }
+    // [MenuItem("AssetBundles/Pack Selected Project Assets → Single AB (LZ4)")]
+    // public static void Pack_LZ4()
+    // {
+    //     var opts = BuildAssetBundleOptions.ChunkBasedCompression;
+    //     PackSelectedProjectAssetsToSingleAB(opts, "LZ4");
+    // }
 
-    [MenuItem("Tools/AssetBundles/Pack Selected Project Assets → Single AB (LZMA)")]
-    public static void Pack_LZMA()
-    {
-        // LZMA 就是不加壓縮選項（= None），但仍保留 Deterministic
-        var opts = BuildAssetBundleOptions.None;
-        PackSelectedProjectAssetsToSingleAB(opts, "LZMA");
-    }
+    // [MenuItem("AssetBundles/Pack Selected Project Assets → Single AB (LZMA)")]
+    // public static void Pack_LZMA()
+    // {
+    //     // LZMA 就是不加壓縮選項（= None），但仍保留 Deterministic
+    //     var opts = BuildAssetBundleOptions.None;
+    //     PackSelectedProjectAssetsToSingleAB(opts, "LZMA");
+    // }
 
-    [MenuItem("Tools/AssetBundles/Pack Selected Project Assets → Single AB (Uncompressed)")]
+    [MenuItem("AssetBundles/Pack Selected Project Assets → Single AB (Uncompressed)")]
     public static void Pack_Uncompressed()
     {
         var opts = BuildAssetBundleOptions.UncompressedAssetBundle;
@@ -101,6 +109,117 @@ public static class PackProjectAssetsToAB
         EditorUtility.DisplayDialog("Build Done",
             $"已輸出 AssetBundle：\n{outPath}\n\n平台：{target}\n壓縮：{label}", "OK");
         Debug.Log($"[AB] Built: {outPath}\n包含資產數：{assetPaths.Count}\n壓縮：{label}");
+
+        // === 搬到專案上上層的 AssetBundles 目錄 ===
+        string destDir = null;
+        string destFile = null;
+        try
+        {
+            string projectUpper = Path.GetFullPath(Path.Combine(Application.dataPath, "../..")); // 上上層
+            destDir = Path.Combine(projectUpper, "AssetBundles");
+            if (!Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+
+            string srcFile = Path.Combine(OutputDir, bundleName);
+            destFile = Path.Combine(destDir, bundleName);
+
+            File.Copy(srcFile, destFile, true);
+            Debug.Log($"[AB] Copied bundle to: {destFile}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[AB] Failed to copy bundle: {e}");
+        }
+
+        // === 從剛打好的 .ab 讀出內容清單，更新 config.json ===
+        try
+        {
+            // 1) 用原輸出的 .ab 載入
+            var abFullPath = Path.Combine(OutputDir, bundleName);
+            var ab = AssetBundle.LoadFromFile(abFullPath);
+            if (ab == null)
+            {
+                Debug.LogWarning($"[AB] LoadFromFile failed for listing assets: {abFullPath}");
+            }
+            else
+            {
+                var names = ab.GetAllAssetNames();
+                ab.Unload(false);
+
+                // 2) config.json 放在 AssetBundles 資料夾外面
+                string configPath = Path.Combine(Path.GetDirectoryName(destDir)!, "config.json");
+
+                GlobalConfig cfg;
+                if (File.Exists(configPath))
+                {
+                    try
+                    {
+                        var text = File.ReadAllText(configPath);
+                        cfg = string.IsNullOrWhiteSpace(text)
+                                ? new GlobalConfig()
+                                : JsonUtility.FromJson<GlobalConfig>(text) ?? new GlobalConfig();
+                    }
+                    catch
+                    {
+                        cfg = new GlobalConfig();
+                    }
+                }
+                else
+                {
+                    cfg = new GlobalConfig();
+                }
+
+                // 3) version +1
+                cfg.version = Math.Max(cfg.version + 1, 1);
+
+                // 4) 追加 bundle URL
+                var rawUrl = $"https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/{bundleName}";
+                if (!cfg.bundle_urls.Contains(rawUrl))
+                    cfg.bundle_urls.Add(rawUrl);
+
+                // 5) 追加資產路徑
+                var aset = new HashSet<string>(cfg.assets ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+                foreach (var n in names) aset.Add(n);
+                cfg.assets = aset.OrderBy(s => s).ToList();
+
+                // 6) 寫回 config.json
+                var pretty = JsonUtility.ToJson(cfg, true);
+                File.WriteAllText(configPath, pretty);
+
+                Debug.Log($"[AB] Updated config.json: {configPath}\n- version++\n- add url: {rawUrl}\n- add {names.Length} assets");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[AB] Failed to update config.json: {e}");
+        }
+
+        // === 刪除 Assets/AssetBundles 裡的本地副本，保持專案乾淨 ===
+        try
+        {
+            string srcFile = Path.Combine(OutputDir, bundleName);
+            if (File.Exists(srcFile))
+            {
+                File.Delete(srcFile);
+
+                // 同名 .manifest 也順手清掉（若存在）
+                string srcManifest = srcFile + ".manifest";
+                if (File.Exists(srcManifest)) File.Delete(srcManifest);
+
+                // Unity 會在輸出資料夾生成目錄主檔與其 .manifest，可選擇保留做除錯用
+                // 若不想保留，也可刪掉：
+                string dirMain = Path.Combine(OutputDir, Path.GetFileName(OutputDir));
+                if (File.Exists(dirMain)) File.Delete(dirMain);
+                string dirMainManifest = dirMain + ".manifest";
+                if (File.Exists(dirMainManifest)) File.Delete(dirMainManifest);
+
+                Debug.Log($"[AB] Removed local copy: {srcFile}");
+                AssetDatabase.Refresh();
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[AB] Failed to clean local bundle: {e}");
+        }
     }
 
     // 僅允許實際可打包的檔案（可依需求擴充）
