@@ -137,7 +137,6 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
                             loaded = op.asset;
                             _loadedAssets.Add(loaded);
                             Debug.Log($"[Asset] Loaded: {a.path} ({a.type}) from bundle '{b.name}'");
-                            InstantiateIfGameObject(loaded);
                             break;
                         }
                     }
@@ -181,12 +180,6 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
             // fallback
             _ => typeof(Object)
         };
-    }
-
-
-    private static void InstantiateIfGameObject(Object asset)
-    {
-        if (asset is GameObject go) Instantiate(go);
     }
 
     private void OnDestroy()
