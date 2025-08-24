@@ -23,7 +23,7 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
 
     private readonly List<AssetBundle> _bundles = new();
     private readonly List<Object> _loadedAssets = new();
-    
+
     public Coroutine StartLoading() => StartCoroutine(Run());
 
     // private void Start()
@@ -35,6 +35,10 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
     {
         // 1) 下載 config.json
         string jsonUrl = configUrl;
+
+        // 在 URL 後面加一個隨機參數，避免伺服器或 CDN 快取
+        jsonUrl = $"{jsonUrl}?t={System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+
         using (var cfgReq = UnityWebRequest.Get(jsonUrl))
         {
             // 1. 加上 Cache-Control header
@@ -42,8 +46,6 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
             cfgReq.SetRequestHeader("Pragma", "no-cache");   // HTTP/1.0 相容
             cfgReq.SetRequestHeader("Expires", "0");         // 避免快取
 
-            // 2. 在 URL 後面加一個隨機參數，避免伺服器或 CDN 快取
-            jsonUrl = $"{jsonUrl}?t={System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
 
             yield return cfgReq.SendWebRequest();
             if (cfgReq.result != UnityWebRequest.Result.Success)
@@ -100,6 +102,9 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
 
                         foreach (var b in _bundles)
                         {
+                            if (b.Contains(a.path))
+                                Debug.Log($"[Check] Found path in bundle: {a.path}");
+
                             // 直接嘗試用指定的 path 載入
                             var loadOp = SceneManager.LoadSceneAsync(a.path, LoadSceneMode.Additive);
                             if (loadOp != null)
@@ -143,6 +148,20 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
                     {
                         Debug.LogWarning($"[Asset] Not found in any bundle: {a.path} ({a.type})");
                     }
+
+                    if (loaded is Sprite sp)
+                    {
+                        var go = new GameObject("LoadedSprite");
+                        var sr = go.AddComponent<SpriteRenderer>();
+                        sr.sprite = sp;
+                    }
+                    else if (loaded is Texture2D tex)
+                    {
+                        var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                        var mat = new Material(Shader.Find("Unlit/Texture"));
+                        mat.mainTexture = tex;
+                        quad.GetComponent<MeshRenderer>().material = mat;
+                    }
                 }
             }
         }
@@ -184,23 +203,5 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
     private static void InstantiateIfGameObject(Object asset)
     {
         if (asset is GameObject go) Instantiate(go);
-    }
-
-    private void OnDestroy()
-    {
-        StartCoroutine(Cleanup());
-    }
-
-    private IEnumerator Cleanup()
-    {
-        // 1) 釋放 AssetBundle（false 以保留已實例化的物件）
-        foreach (var b in _bundles)
-        {
-            if (b != null) b.Unload(false);
-        }
-        _bundles.Clear();
-
-        // 2) 可選：釋放未被引用的資源
-        yield return Resources.UnloadUnusedAssets();
     }
 }

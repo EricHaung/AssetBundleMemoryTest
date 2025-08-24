@@ -1,14 +1,9 @@
 {
-    "version": 5,
+    "version": 6,
     "bundle_urls": [
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/1Texture2d.ab",
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/goblin_sprite 1_20250824_144429.ab"
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/1Texture2d_assets_ui_goblin_sprite.ab"
     ],
     "assets": [
-        {
-            "path": "assets/ui/goblin_sprite 1.png",
-            "type": "Texture2D"
-        },
         {
             "path": "assets/ui/goblin_sprite.png",
             "type": "Texture2D"
