@@ -19,7 +19,7 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
 {
     // 固定從這個 GitHub 連結抓設定（按你的要求）
     [TextArea]
-    public string configUrl = "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/config.json";
+    public string configUrl = "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/refs/heads/main/config.json";
 
     private readonly List<AssetBundle> _bundles = new();
     private readonly List<Object> _loadedAssets = new();
@@ -37,6 +37,14 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
         string jsonUrl = configUrl;
         using (var cfgReq = UnityWebRequest.Get(jsonUrl))
         {
+            // 1. 加上 Cache-Control header
+            cfgReq.SetRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            cfgReq.SetRequestHeader("Pragma", "no-cache");   // HTTP/1.0 相容
+            cfgReq.SetRequestHeader("Expires", "0");         // 避免快取
+
+            // 2. 在 URL 後面加一個隨機參數，避免伺服器或 CDN 快取
+            jsonUrl = $"{jsonUrl}?t={System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+
             yield return cfgReq.SendWebRequest();
             if (cfgReq.result != UnityWebRequest.Result.Success)
             {
