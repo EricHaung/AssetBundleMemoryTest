@@ -13,7 +13,14 @@ public static class PackProjectAssetsToAB
     {
         public int version = 1;
         public List<string> bundle_urls = new List<string>();
-        public List<string> assets = new List<string>();
+        public List<AssetEntry> assets = new List<AssetEntry>();
+    }
+
+    [System.Serializable]
+    private class AssetEntry
+    {
+        public string path;
+        public string type;
     }
 
     private const string OutputDir = "Assets/AssetBundles";
@@ -133,7 +140,7 @@ public static class PackProjectAssetsToAB
         // === 從剛打好的 .ab 讀出內容清單，更新 config.json ===
         try
         {
-            // 1) 用原輸出的 .ab 載入
+            // 1) 列出這個 AB 內的所有資產
             var abFullPath = Path.Combine(OutputDir, bundleName);
             var ab = AssetBundle.LoadFromFile(abFullPath);
             if (ab == null)
@@ -142,12 +149,11 @@ public static class PackProjectAssetsToAB
             }
             else
             {
-                var names = ab.GetAllAssetNames();
-                ab.Unload(false);
-
-                // 2) config.json 放在 AssetBundles 資料夾外面
+                var names = ab.GetAllAssetNames(); // e.g. "assets/ui/prefabs/menuroot.prefab"
+                                                   // 2) config.json 放在 AssetBundles 資料夾外面
                 string configPath = Path.Combine(Path.GetDirectoryName(destDir)!, "config.json");
 
+                // 3) 讀取或建立 config
                 GlobalConfig cfg;
                 if (File.Exists(configPath))
                 {
@@ -156,7 +162,7 @@ public static class PackProjectAssetsToAB
                         var text = File.ReadAllText(configPath);
                         cfg = string.IsNullOrWhiteSpace(text)
                                 ? new GlobalConfig()
-                                : JsonUtility.FromJson<GlobalConfig>(text) ?? new GlobalConfig();
+                                : (JsonUtility.FromJson<GlobalConfig>(text) ?? new GlobalConfig());
                     }
                     catch
                     {
@@ -168,24 +174,56 @@ public static class PackProjectAssetsToAB
                     cfg = new GlobalConfig();
                 }
 
-                // 3) version +1
+                // 3.1 確保 list 不為 null（避免 NRE）
+                cfg.bundle_urls ??= new List<string>();
+                cfg.assets ??= new List<AssetEntry>();
+
+                // 4) version +1
                 cfg.version = Math.Max(cfg.version + 1, 1);
 
-                // 4) 追加 bundle URL
+                // 5) 追加 bundle URL（去重）
                 var rawUrl = $"https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/{bundleName}";
-                if (!cfg.bundle_urls.Contains(rawUrl))
+                if (!cfg.bundle_urls.Any(u => string.Equals(u, rawUrl, StringComparison.OrdinalIgnoreCase)))
                     cfg.bundle_urls.Add(rawUrl);
 
-                // 5) 追加資產路徑
-                var aset = new HashSet<string>(cfg.assets ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
-                foreach (var n in names) aset.Add(n);
-                cfg.assets = aset.OrderBy(s => s).ToList();
+                // 6) 追加本次 AB 的 assets（path + type）
+                foreach (var name in names)
+                {
+                    // 6.1 取得型別：直接從 AB 載出主物件看型別（避免 AssetDatabase 偵測失敗）
+                    UnityEngine.Object obj = null;
+                    try { obj = ab.LoadAsset(name); } catch { /* 忽略載入失敗 */ }
+                    var typeName = obj != null ? obj.GetType().Name : "Object";
 
-                // 6) 寫回 config.json
+                    // 6.2 轉成你要的 path 格式：去掉 "assets/" 前綴與副檔名
+                    var clean = name;
+                    if (clean.StartsWith("assets/", StringComparison.OrdinalIgnoreCase))
+                        clean = clean.Substring("assets/".Length);
+                    var ext = Path.GetExtension(clean);
+                    if (!string.IsNullOrEmpty(ext)) clean = clean.Substring(0, clean.Length - ext.Length);
+
+                    // 6.3 去重（null-safe）
+                    bool exists = cfg.assets.Any(a =>
+                        a != null &&
+                        !string.IsNullOrEmpty(a.path) &&
+                        a.path.Equals(clean, StringComparison.OrdinalIgnoreCase));
+
+                    if (!exists)
+                    {
+                        cfg.assets.Add(new AssetEntry { path = clean, type = typeName });
+                    }
+                }
+
+                // 7) 寫回 config.json（排序可選）
+                cfg.assets = cfg.assets
+                    .Where(a => a != null && !string.IsNullOrEmpty(a.path))
+                    .OrderBy(a => a.path, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
                 var pretty = JsonUtility.ToJson(cfg, true);
                 File.WriteAllText(configPath, pretty);
-
                 Debug.Log($"[AB] Updated config.json: {configPath}\n- version++\n- add url: {rawUrl}\n- add {names.Length} assets");
+
+                ab.Unload(false);
             }
         }
         catch (Exception e)

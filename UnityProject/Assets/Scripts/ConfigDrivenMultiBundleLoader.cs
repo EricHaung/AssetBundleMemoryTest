@@ -116,6 +116,9 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
 
                     foreach (var b in _bundles)
                     {
+                        Debug.Log(a);
+                        Debug.Log(a.path);
+                        Debug.Log(t);
                         var op = b.LoadAssetAsync(a.path, t);
                         yield return op;
 
