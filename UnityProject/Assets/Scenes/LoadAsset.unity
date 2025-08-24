@@ -212,7 +212,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loader: {fileID: 43746479}
-  triggerButton: {fileID: 0}
 --- !u!1 &370276702
 GameObject:
   m_ObjectHideFlags: 0

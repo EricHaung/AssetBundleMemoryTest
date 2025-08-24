@@ -1,13 +1,12 @@
 {
-    "version": 19,
+    "version": 20,
     "bundle_urls": [
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/goblin_sprite.ab",
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/goblin_sprite1.ab"
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/root_20250824_171213.ab"
     ],
     "assets": [
         {
-            "path": "assets/ui/goblin_sprite.png",
-            "type": "Texture2D"
+            "path": "assets/prefabs/root.prefab",
+            "type": "GameObject"
         }
     ]
 }
