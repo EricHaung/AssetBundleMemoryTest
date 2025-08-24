@@ -1,5 +1,9 @@
 {
-  "version": 1,
-  "bundle_urls": [],
-  "assets": []
+    "version": 2,
+    "bundle_urls": [
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/goblin_sprite_20250824_124430.ab"
+    ],
+    "assets": [
+        "assets/ui/goblin_sprite.png"
+    ]
 }
