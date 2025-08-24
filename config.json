@@ -1,11 +1,11 @@
 {
-    "version": 30,
+    "version": 31,
     "bundle_urls": [
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/binarytree3withscript.ab"
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/quaternarytree5.ab"
     ],
     "assets": [
         {
-            "path": "assets/prefabs/BinaryTree3withScript.prefab",
+            "path": "assets/prefabs/QuaternaryTree5.prefab",
             "type": "GameObject"
         }
     ]
