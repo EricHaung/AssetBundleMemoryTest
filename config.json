@@ -1,11 +1,11 @@
 {
-    "version": 21,
+    "version": 22,
     "bundle_urls": [
-        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/root.ab"
+        "https://raw.githubusercontent.com/EricHaung/AssetBundleMemoryTest/main/AssetBundles/binarytree3.ab"
     ],
     "assets": [
         {
-            "path": "assets/prefabs/root.prefab",
+            "path": "assets/prefabs/binarytree3.prefab",
             "type": "GameObject"
         }
     ]

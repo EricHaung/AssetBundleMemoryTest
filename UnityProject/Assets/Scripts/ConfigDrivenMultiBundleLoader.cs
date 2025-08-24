@@ -38,7 +38,7 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
 
         // 在 URL 後面加一個隨機參數，避免伺服器或 CDN 快取
         jsonUrl = $"{jsonUrl}?t={System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-
+        Debug.Log(jsonUrl);
         using (var cfgReq = UnityWebRequest.Get(jsonUrl))
         {
             // 1. 加上 Cache-Control header
@@ -66,6 +66,7 @@ public class ConfigDrivenMultiBundleLoader : MonoBehaviour
             // 2) 逐個下載 bundle
             foreach (var rawUrl in cfg.bundle_urls)
             {
+                Debug.Log(rawUrl);
                 var bundleUrl = rawUrl;
                 using var abReq = UnityWebRequestAssetBundle.GetAssetBundle(bundleUrl, version, 0);
                 yield return abReq.SendWebRequest();
